@@ -20,5 +20,4 @@ file_path = os.path.join(directory, file_name)
 sensors_df = pd.read_csv(file_path,usecols=["Sensor ID","Node ID","Location","Latitude","Longitude","Installation Date"])
 
 
-#convert sensor df to json and save
 sensors_df.to_json('./data/sensors_with_nodes.json',orient='records')
