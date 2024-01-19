@@ -31,8 +31,8 @@ start_time = time.time()
 ###Receiving incoming arguments
 
 
-# pollutant = str(sys.argv[1])
-pollutant = "co2"
+pollutant = str(sys.argv[1])
+# pollutant = "co2"
 
 
 
@@ -73,7 +73,6 @@ async def get_all_data_async(sensors_df, start_date, end_date, variable, start_t
         for i in range(len(sensors_df)):
             location = urllib.parse.quote(sensors_df["Location"][i])
             node_id = sensors_df["Node ID"][i]
-            print("appended")
             url = f"{base_url}/node/{node_id}/measurements_all/csv?name={location}&interval=60&variables={variable}&start={start_date}%20{start_time}&end={end_date}%20{end_time}&char_type=measurement"
             tasks.append(fetch_data(session, url,node_id))
 
@@ -301,5 +300,5 @@ print(final_data, flush=True)
 
 # print(len(final_data))
 
-print("--- %s seconds ---" % (time.time() - start_time))
+# print("--- %s seconds ---" % (time.time() - start_time))
 
