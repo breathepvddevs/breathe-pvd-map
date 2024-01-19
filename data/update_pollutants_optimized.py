@@ -31,8 +31,8 @@ start_time = time.time()
 ###Receiving incoming arguments
 
 
-pollutant = str(sys.argv[1])
-# pollutant = "co"
+# pollutant = str(sys.argv[1])
+pollutant = "co2"
 
 
 
@@ -73,6 +73,7 @@ async def get_all_data_async(sensors_df, start_date, end_date, variable, start_t
         for i in range(len(sensors_df)):
             location = urllib.parse.quote(sensors_df["Location"][i])
             node_id = sensors_df["Node ID"][i]
+            print("appended")
             url = f"{base_url}/node/{node_id}/measurements_all/csv?name={location}&interval=60&variables={variable}&start={start_date}%20{start_time}&end={end_date}%20{end_time}&char_type=measurement"
             tasks.append(fetch_data(session, url,node_id))
 
@@ -100,7 +101,6 @@ def get_all_data(sensors_df, start_date, end_date, variable, start_time, end_tim
         response = requests.get(url)
 
         if response.status_code == 200:
-          # Remove the header (first line) from the response content
           if i == 0:
             data += response.text
           content_lines = response.text.split('\n')
@@ -273,7 +273,6 @@ async def convert_final():
     # print(combined_data[combined_data["co_corrected"] != -1]["Node ID"].unique())
 
     directory = "./public"
-    #TODO: switch back to combined data
     print_comb = combined_data.to_json(orient='records')
 
 
@@ -302,5 +301,5 @@ print(final_data, flush=True)
 
 # print(len(final_data))
 
-# print("--- %s seconds ---" % (time.time() - start_time))
+print("--- %s seconds ---" % (time.time() - start_time))
 
