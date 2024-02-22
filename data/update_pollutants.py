@@ -20,8 +20,8 @@ import io
 ################# 
 
 
-pollutant = str(sys.argv[1])
-# pollutant = "co"
+# pollutant = str(sys.argv[1])
+pollutant = "co2"
 
 
 
@@ -41,6 +41,9 @@ def generate_url(node_name, node_id, variable, start_date, start_time, end_date,
     custom_url = ("/node/" + str(node_id)
                   + "/measurements_all/csv?name=" + str(node_name) + "&interval=60&variables=" + variable + "&start=" +
                   str(start_date) + "%20" + str(start_time) + "&end=" + str(end_date) + "%20" + str(end_time) + "&char_type=measurement")
+
+
+    print(base_url + custom_url)
     
     return base_url + custom_url
 
@@ -248,7 +251,7 @@ def convert_final():
    
   
     #save as csv 
-    combined_data.to_csv(os.path.join("./data/tests", 'coords.csv'), index=False)
+    combined_data.to_csv(os.path.join("./data/tests", 'coords_batch_one_test.csv'), index=False)
     
 
     #comment this out if it works 

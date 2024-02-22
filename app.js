@@ -14,7 +14,7 @@ app.get('/main_data', async (req, res) => {
   try {
     const { pollutant_type} = req.query;
     console.log(pollutant_type);
-    const data = await getMainData(pollutant_type);
+    const data = await getMainData(pollutant_type,1);
     console.log(data);
     res.send(data);
     console.log("Data Sent at " + new Date().toLocaleString());
@@ -23,12 +23,25 @@ app.get('/main_data', async (req, res) => {
   }
 });
 
+app.get('/initial_data', async(req,res) => {
+  try {
+    const {pollutant_type, batch_num} = req.query;
+    const data = await getMainData(pollutant_type,batch_num);
+    console.log(data);
+    res.send(data);
+    console.log("Initial Data Sent at " + new Date().toLocaleString() + " for batch " + batch_num);
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred while fetching data' });
+  }
+
+});
+
 
 // Helper function for the main_data
-async function getMainData(pollutant_type) {
+async function getMainData(pollutant_type,batch_num) {
   return new Promise((resolve, reject) => {
     //data/update_pollutants.py for non-optimized version
-    const updateScript = spawn('python3', ['data/update_pollutants_optimized.py', pollutant_type]);
+    const updateScript = spawn('python3', ['data/update_pollutants_optimized.py', pollutant_type, batch_num]);
 
     let stdout = ''; 
 

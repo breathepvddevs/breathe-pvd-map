@@ -33,6 +33,8 @@ start_time = time.time()
 
 pollutant = str(sys.argv[1])
 # pollutant = "co2"
+batch_num = int(sys.argv[2])
+# batch_num = 3
 
 
 
@@ -69,6 +71,7 @@ async def get_all_data_async(sensors_df, start_date, end_date, variable, start_t
     base_url = "http://128.32.208.8"
 
     tasks = []
+    sensors_df = sensors_df.sample(n=7, random_state=42).reset_index(drop=True)
     async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit_per_host=30)) as session:
         for i in range(len(sensors_df)):
             location = urllib.parse.quote(sensors_df["Location"][i])
@@ -207,12 +210,21 @@ def convert_longitude(longitude):
 
 
 
-async def convert_final():
+async def convert_final(batch_num):
      
     directory = './data'
     file_name = 'sensors_with_nodes.csv'
     file_path = os.path.join(directory, file_name)
-    sensors_df = pd.read_csv(file_path,usecols=["Sensor ID","Node ID","Location","Latitude","Longitude","Installation Date"])
+    all_sensors_df = pd.read_csv(file_path,usecols=["Sensor ID","Node ID","Location","Latitude","Longitude","Installation Date"])
+
+    if batch_num == 1:
+      sensors_df = all_sensors_df[0:7]
+    elif batch_num == 2:
+      sensors_df = all_sensors_df[8:15]
+    elif batch_num == 3:
+      sensors_df = all_sensors_df[16:23]
+    elif batch_num == 0:
+      sensors_df = all_sensors_df
 
     curr_time = est_to_pst(datetime.datetime.now())
 
@@ -274,12 +286,11 @@ async def convert_final():
     directory = "./public"
     print_comb = combined_data.to_json(orient='records')
 
-
     #save failed logs
     # store_failed_requests(combined_data)
     
     #save as csv 
-    combined_data.to_csv(os.path.join("./data/tests", 'coords.csv'), index=False)
+    combined_data.to_csv(os.path.join("./data/tests", 'coords_all.csv'), index=False)
     
 
     # #comment this out if it works 
@@ -293,8 +304,10 @@ async def convert_final():
 
 # ### File is correct global SUCCESS
 loop = asyncio.get_event_loop()
-final_data = loop.run_until_complete(convert_final())
+final_data = loop.run_until_complete(convert_final(batch_num))
 loop.close()
+
+
 
 print(final_data, flush=True)
 

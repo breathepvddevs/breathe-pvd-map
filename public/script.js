@@ -321,14 +321,27 @@ async function getTimeSeriesData(node, timeLine, pollutant) {
 
 
 async function updateMainData(pollutant) {
+  const batch_num = 0;
   //maybe add a trigger for new data here
   const response = await axios.get('/main_data', {
     params: {
-      pollutant_type: pollutant
+      pollutant_type: pollutant,
+      batch_num: batch_num
     }
   });
   return response.data;
 
+}
+
+//new function for updating
+async function getInitialData(pollutant,batch_num){
+  const response = await axios.get('/initial_data', {
+    params: {
+      pollutant_type: pollutant,
+      batch_num: batch_num
+    }
+  });
+  return response.data;
 }
 
 
@@ -455,8 +468,6 @@ mymap.addControl(legendControl);
 async function getInfoHelper(){
   const response = await fetch('sensors_with_nodes.json');
   const data = await response.json();
-  // log all of the locations
-  console.log(data);
   return data;
 
 }
@@ -479,6 +490,8 @@ var markerArray = [];
 
 //plot markers helper
 function plotMarkers(coordinates, pollutant) {
+
+  console.log(coordinates);
 
 
   // marker array not empty then loop throuh and remove all of the markers
@@ -504,17 +517,8 @@ function plotMarkers(coordinates, pollutant) {
     roundPollutantBy = 3;
   }
 
-
-
-  // correct to make sure that we are only plotting unique markers with values 
-  // currently not including the null values, might have to include those later 
-  // coordinates = coordinates.filter(item => {
-  //   return item.datetime === CurrentDate || item.datetime == -1;
-  // });
-  
-
-
   for (let i = 0; i < coordinates.length; i++) {
+    console.log("This is the current Node ID", coordinates[i]["Node ID"])
     const lat = coordinates[i]["Latitude"];
     const lon = coordinates[i]["Longitude"];
     let color = getColor(coordinates[i][pollutantName], pollutant);
@@ -532,7 +536,7 @@ function plotMarkers(coordinates, pollutant) {
 
   // if the marker is not  already in the array, add it
   if (!markerArray.includes(circleMarker)){
-    markerArray.push({ marker: circleMarker, nodeId:coordinates[i]["Node ID"] });
+    markerArray.push({ marker: circleMarker, nodeId: coordinates[i]["Node ID"] });
   }
 
   
@@ -552,9 +556,8 @@ function plotMarkers(coordinates, pollutant) {
 
 centralLoader.style.display = 'none';
 
+console.log("this is the amoutn of ploted markers", markerArray.length)
 
-
-console.log(markerArray);
 return markerArray;
 
 
@@ -675,12 +678,8 @@ async function DisplaySidebar(event, nodeId,coordinates, pollutant) {
 
 }
 
-
-
-
 //make the pollutant be passed in 
 async function makeMap(coordinates,pollutant) { 
-
 
   var markerArray = plotMarkers(coordinates, pollutant);
 
@@ -695,8 +694,6 @@ async function makeMap(coordinates,pollutant) {
     const nodeId = item.nodeId;
     circleMarker.on('click', (event) => DisplaySidebar(event, nodeId, coordinates, pollutant));
   }
-  
-  
 }
 
 console.log("Pollutant:", selectedPollutant);
@@ -706,11 +703,21 @@ async function initMap(){
 
   centralLoader.style.display = 'block';
 
+
   // ask for the pollutant data and make co2 the default
-  co2Array = await updateMainData(selectedPollutant);
+  const fetchArrayBatchOne = await getInitialData(selectedPollutant, 1);
+  const fetchArrayBatchTwo = await getInitialData(selectedPollutant, 2);
+  const fetchArrayBatchThree = await getInitialData(selectedPollutant, 3);
+
+  console.log("Batch One", fetchArrayBatchOne);
+  console.log("Batch Two", fetchArrayBatchTwo);
+  console.log("Batch Three", fetchArrayBatchThree);
+
+  co2Array = [...fetchArrayBatchOne,...fetchArrayBatchTwo,...fetchArrayBatchThree];
+  makeMap(co2Array,selectedPollutant);
+
+
   
-  // call the map function and make the map
-  makeMap(co2Array, selectedPollutant);
 
   if (selectedPollutant == 'co2') {
     complimentaryPollutant = 'co';
@@ -723,7 +730,11 @@ async function initMap(){
 
 initMap().then( async function() {
   console.log("Processing fetch of data for CO  ...");
-  coArray = await updateMainData(complimentaryPollutant);
+  const fetchArrayBatchOne = await getInitialData(complimentaryPollutant, 1);
+  const fetchArrayBatchTwo = await getInitialData(complimentaryPollutant, 2);
+  const fetchArrayBatchThree = await getInitialData(complimentaryPollutant, 3);
+  coArray = [...fetchArrayBatchOne,...fetchArrayBatchTwo,...fetchArrayBatchThree];
+  console.log(coArray);
   console.log("Data fetch complete!");
 });
 
