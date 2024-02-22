@@ -352,7 +352,7 @@ let complimentaryPollutant = "";
 
 
 
-function updatePollutant(div) {
+async function updatePollutant(div) {
  
   //buttons
   const gradientDiv = div.querySelector('#gradient-div');
@@ -384,6 +384,23 @@ function updatePollutant(div) {
 
   } else if (radioCO.checked) {
     console.log('co checked');
+
+    //if the array is empty, than make display the loading thing in green and wait until the execution is finished to load
+    if(coArray.length === 0){
+      centralLoader.style.display = 'block';
+      centralLoader.style.borderTop = '8px solid darkgreen';
+
+      console.log("Function activated");
+
+      const fetchArrayBatchOne = await getInitialData("co", 1);
+      const fetchArrayBatchTwo = await getInitialData("co", 2);
+      const fetchArrayBatchThree = await getInitialData("co", 3);
+
+      console.log("This is the resulting coArray",coArray);
+      coArray = [...fetchArrayBatchOne,...fetchArrayBatchTwo,...fetchArrayBatchThree];
+
+      // request the data ?
+    }
 
     //changing the legend 
     gradientDiv.style.background = "linear-gradient(to bottom,rgb(0,100,0), rgb(116, 150, 113), rgb(143, 188, 139), rgb(209, 242, 206), rgb(236, 252, 235))";
@@ -698,6 +715,8 @@ async function makeMap(coordinates,pollutant) {
 
 console.log("Pollutant:", selectedPollutant);
 
+
+
 //make a function that deals with initializing the map 
 async function initMap(){
 
@@ -716,9 +735,6 @@ async function initMap(){
   co2Array = [...fetchArrayBatchOne,...fetchArrayBatchTwo,...fetchArrayBatchThree];
   makeMap(co2Array,selectedPollutant);
 
-
-  
-
   if (selectedPollutant == 'co2') {
     complimentaryPollutant = 'co';
   } else if (selectedPollutant == 'co') {
@@ -726,6 +742,8 @@ async function initMap(){
   }
 
 }
+
+
 
 
 initMap().then( async function() {
