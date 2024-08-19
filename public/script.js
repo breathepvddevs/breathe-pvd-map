@@ -82,7 +82,7 @@ function getColor(value, pollutant) {
   } else if (pollutant == 'co') {
     color1 = [234, 255, 236];
     color2 =  [0,100,0];
-    percent = normalize(value, 0, 2.0); 
+    percent = normalize(value, 0, 0.4); 
   }
   
 
@@ -404,7 +404,7 @@ async function updatePollutant(div) {
 
     //changing the legend 
     gradientDiv.style.background = "linear-gradient(to bottom,rgb(0,100,0), rgb(116, 150, 113), rgb(143, 188, 139), rgb(209, 242, 206), rgb(236, 252, 235))";
-    maxValue.innerHTML = '2.0 ppm';
+    maxValue.innerHTML = '0.4 ppm';
     minValue.innerHTML = '0.0 ppm';
     selectedPollutant = 'co';
 
